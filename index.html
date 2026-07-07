@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'"/>
+    <title>AES-128 Learning Simulator</title>
+    <link rel="stylesheet" href="./src/ui/styles.css" />
+    <script type="module" src="./src/ui/ui.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">AES</div>
+          <div>
+            <strong>AES-128 Lab</strong>
+            <span>FIPS-197 simulator</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Navigasi utama">
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="encrypt">Encrypt</button>
+          <button class="nav-item" data-view="decrypt">Decrypt</button>
+          <button class="nav-item" data-view="key-expansion">Key Expansion</button>
+          <button class="nav-item" data-view="visualization">Visualization</button>
+          <button class="nav-item" data-view="theory">Theory</button>
+          <button class="nav-item" data-view="testing">Testing</button>
+          <button class="nav-item" data-view="reference">Reference</button>
+          <button class="nav-item" data-view="about">About</button>
+        </nav>
+        <button id="themeToggle" class="theme-toggle" type="button">Light Mode</button>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="crumb" id="breadcrumb">Dashboard / AES-128</p>
+            <h1 id="viewTitle">Simulasi Advanced Encryption Standard</h1>
+          </div>
+          <div class="status-pill" id="validationStatus">FIPS vector ready</div>
+        </header>
+
+        <section class="panel control-panel" aria-label="Input AES">
+          <div class="field-group">
+            <label for="plainMode">Plaintext Mode</label>
+            <select id="plainMode">
+              <option value="hex">Plaintext HEX</option>
+              <option value="ascii">Plaintext ASCII</option>
+            </select>
+          </div>
+          <div class="field-group grow">
+            <label for="plaintext">Plaintext</label>
+            <input id="plaintext" spellcheck="false" maxlength="32" placeholder="Max 32 HEX atau 16 ASCII" value="00112233445566778899AABBCCDDEEFF" />
+          </div>
+          <div class="field-group grow">
+            <label for="cipherInput">Ciphertext HEX</label>
+            <input id="cipherInput" spellcheck="false" maxlength="32" placeholder="32 karakter HEX" value="69C4E0D86A7B0430D8CDB78070B4C55A" />
+          </div>
+          <div class="field-group grow">
+            <label for="keyInput">Key HEX</label>
+            <input id="keyInput" spellcheck="false" maxlength="32" placeholder="32 karakter HEX" value="000102030405060708090A0B0C0D0E0F" />
+          </div>
+          <button id="runEncrypt" class="primary-btn" type="button">Encrypt</button>
+          <button id="runDecrypt" class="secondary-btn" type="button">Decrypt</button>
+          <button id="resetInputs" class="secondary-btn" type="button">Reset</button>
+        </section>
+
+        <section id="toast" class="toast" hidden></section>
+
+        <section id="dashboard" class="view active">
+          <div class="hero-band">
+            <div>
+              <h2>Media belajar AES-128 yang memperlihatkan byte demi byte.</h2>
+              <p>Engine dibuat manual tanpa CryptoJS, Web Crypto API, Node crypto AES, OpenSSL, atau library AES lain. Mode yang digunakan adalah ECB single block sesuai spesifikasi tugas.</p>
+            </div>
+            <div class="hero-matrix" id="heroMatrix"></div>
+          </div>
+          <div class="metric-grid">
+            <article><strong>128 bit</strong><span>Block dan key size</span></article>
+            <article><strong>10 rounds</strong><span>AES-128 standard</span></article>
+            <article><strong>44 words</strong><span>W0 sampai W43</span></article>
+            <article><strong>Manual GF</strong><span>xtime, multiply, XOR</span></article>
+          </div>
+        </section>
+
+        <section id="encrypt" class="view">
+          <div class="result-grid">
+            <article class="panel">
+              <h2>Output Enkripsi</h2>
+              <dl class="output-list">
+                <dt>Ciphertext HEX</dt><dd id="cipherHex"></dd>
+                <dt>Ciphertext Binary</dt><dd id="cipherBinary"></dd>
+                <dt>Ciphertext ASCII</dt><dd id="cipherAscii"></dd>
+              </dl>
+              <div class="button-row">
+                <button class="secondary-btn" data-copy="cipherHex" type="button">Copy HEX</button>
+                <button id="downloadResult" class="secondary-btn" type="button">Download Result</button>
+              </div>
+            </article>
+            <article class="panel">
+              <h2>State Matrix Ciphertext</h2>
+              <div id="cipherMatrix"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="decrypt" class="view">
+          <div class="result-grid">
+            <article class="panel">
+              <h2>Output Dekripsi</h2>
+              <dl class="output-list">
+                <dt>Plaintext HEX</dt><dd id="plainHex"></dd>
+                <dt>Plaintext ASCII</dt><dd id="plainAscii"></dd>
+              </dl>
+              <button class="secondary-btn" data-copy="plainHex" type="button">Copy HEX</button>
+            </article>
+            <article class="panel">
+              <h2>State Matrix Plaintext</h2>
+              <div id="plainMatrix"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="key-expansion" class="view">
+          <div class="section-toolbar">
+            <h2>Key Expansion W0-W43</h2>
+            <input id="wordSearch" placeholder="Search W atau RoundKey" />
+          </div>
+          <div class="key-expansion-panel">
+            <article class="panel">
+              <h2>State Kunci Awal</h2>
+              <div id="initialKeyState"></div>
+            </article>
+            <article class="panel">
+              <h2>Proses g(RotWord/SubWord/Rcon)</h2>
+              <div id="keyScheduleDetails"></div>
+            </article>
+          </div>
+          <div id="roundKeys" class="round-key-grid"></div>
+          <div id="words" class="word-grid"></div>
+        </section>
+
+        <section id="visualization" class="view">
+          <div class="section-toolbar">
+            <h2>Step-by-step Visualization</h2>
+            <div class="button-row">
+              <button id="prevStep" class="secondary-btn" type="button">Previous</button>
+              <button id="playSteps" class="primary-btn" type="button">Play</button>
+              <button id="nextStep" class="secondary-btn" type="button">Next</button>
+              <button id="expandAll" class="secondary-btn" type="button">Expand All</button>
+              <button id="collapseAll" class="secondary-btn" type="button">Collapse All</button>
+            </div>
+          </div>
+          <input id="stepSearch" class="search" placeholder="Search step, round, SubBytes, MixColumns..." />
+          <div id="activeStep" class="active-step panel"></div>
+          <div id="stepList" class="step-list"></div>
+        </section>
+
+        <section id="theory" class="view">
+          <div id="theoryGrid" class="theory-grid"></div>
+        </section>
+
+        <section id="testing" class="view">
+          <article class="panel">
+            <h2>FIPS-197 Test Vector</h2>
+            <p>Plaintext: 00112233445566778899AABBCCDDEEFF</p>
+            <p>Key: 000102030405060708090A0B0C0D0E0F</p>
+            <p>Expected Ciphertext: 69C4E0D86A7B0430D8CDB78070B4C55A</p>
+            <div id="testResult" class="test-result"></div>
+          </article>
+        </section>
+
+        <section id="reference" class="view">
+          <article class="panel prose">
+            <h2>Reference</h2>
+            <p>Implementasi mengikuti FIPS-197: state 4x4 byte, AES-128 dengan Nk=4, Nb=4, Nr=10, S-Box resmi, Rcon, MixColumns, inverse transformations, dan GF(2^8) dengan polynomial 0x11B.</p>
+          </article>
+        </section>
+
+        <section id="about" class="view">
+          <article class="panel prose">
+            <h2>About</h2>
+            <p>Aplikasi ini dibuat sebagai media pembelajaran kriptografi. Semua output dirender sebagai textContent untuk menghindari HTML injection, tidak memakai eval, dan halaman dikunci dengan Content Security Policy.</p>
+          </article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
