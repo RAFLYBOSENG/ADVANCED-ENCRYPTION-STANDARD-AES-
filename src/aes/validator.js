@@ -10,7 +10,9 @@ import { asciiToBytes, hexToBytes } from "./utils.js";
 export function parsePlaintext(mode, value) {
   const raw = String(value ?? "");
   const bytes = mode === "hex" ? hexToBytes(raw) : asciiToBytes(raw);
-  if (bytes.length > 16) throw new Error("Plaintext single block maksimal 16 byte.");
+  if (bytes.length > 16) {
+    throw new Error("Plaintext terlalu panjang untuk satu blok AES-128. Maksimal 16 byte / 32 karakter HEX atau 16 karakter ASCII.");
+  }
   return [...bytes, ...Array(16 - bytes.length).fill(0)];
 }
 
@@ -23,7 +25,9 @@ export function parsePlaintext(mode, value) {
  */
 export function parseCiphertext(value) {
   const bytes = hexToBytes(value);
-  if (bytes.length !== 16) throw new Error("Ciphertext harus tepat 16 byte / 32 digit HEX.");
+  if (bytes.length !== 16) {
+    throw new Error("Ciphertext harus tepat 16 byte. Masukkan 32 karakter HEX.");
+  }
   return bytes;
 }
 
@@ -36,6 +40,8 @@ export function parseCiphertext(value) {
  */
 export function parseKey(value) {
   const bytes = hexToBytes(value);
-  if (bytes.length !== 16) throw new Error("Key AES-128 harus tepat 16 byte / 32 digit HEX.");
+  if (bytes.length !== 16) {
+    throw new Error("Kunci AES-128 harus tepat 16 byte. Masukkan 32 karakter HEX.");
+  }
   return bytes;
 }

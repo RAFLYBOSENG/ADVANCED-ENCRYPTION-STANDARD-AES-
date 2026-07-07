@@ -41,7 +41,7 @@ export function bytesToHex(bytes) {
 export function hexToBytes(hex) {
   const clean = String(hex).replace(/\s+/g, "").toUpperCase();
   if (!/^[0-9A-F]*$/.test(clean) || clean.length % 2 !== 0) {
-    throw new Error("HEX harus berisi pasangan digit 0-9 atau A-F.");
+    throw new Error("HEX hanya boleh berisi digit 0-9 dan A-F, dengan jumlah genap karakter.");
   }
   const bytes = [];
   for (let i = 0; i < clean.length; i += 2) {

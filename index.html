@@ -27,7 +27,7 @@
           <button class="nav-item" data-view="key-expansion">Key Expansion</button>
           <button class="nav-item" data-view="visualization">Visualization</button>
           <button class="nav-item" data-view="theory">Theory</button>
-          <button class="nav-item" data-view="testing">Testing</button>
+          <!-- <button class="nav-item" data-view="testing">Testing</button> -->
           <button class="nav-item" data-view="reference">Reference</button>
           <button class="nav-item" data-view="about">About</button>
         </nav>
@@ -53,15 +53,18 @@
           </div>
           <div class="field-group grow">
             <label for="plaintext">Plaintext</label>
-            <input id="plaintext" spellcheck="false" maxlength="32" placeholder="Max 32 HEX atau 16 ASCII" value="00112233445566778899AABBCCDDEEFF" />
+            <input id="plaintext" spellcheck="false" maxlength="32" placeholder="Contoh: 00112233445566778899AABBCCDDEEFF atau teks singkat" value="00112233445566778899AABBCCDDEEFF" />
+            <small class="field-hint" id="plaintextHint">Mode HEX: 32 karakter HEX genap; Mode ASCII: maksimal 16 karakter.</small>
           </div>
           <div class="field-group grow">
             <label for="cipherInput">Ciphertext HEX</label>
             <input id="cipherInput" spellcheck="false" maxlength="32" placeholder="32 karakter HEX" value="69C4E0D86A7B0430D8CDB78070B4C55A" />
+            <small class="field-hint" id="ciphertextHint">Masukkan ciphertext 32 karakter HEX untuk block AES-128.</small>
           </div>
           <div class="field-group grow">
             <label for="keyInput">Key HEX</label>
             <input id="keyInput" spellcheck="false" maxlength="32" placeholder="32 karakter HEX" value="000102030405060708090A0B0C0D0E0F" />
+            <small class="field-hint" id="keyHint">Masukkan kunci AES-128 32 karakter HEX.</small>
           </div>
           <button id="runEncrypt" class="primary-btn" type="button">Encrypt</button>
           <button id="runDecrypt" class="secondary-btn" type="button">Decrypt</button>
@@ -74,7 +77,7 @@
           <div class="hero-band">
             <div>
               <h2>Media belajar AES-128 yang memperlihatkan byte demi byte.</h2>
-              <p>Engine dibuat manual tanpa CryptoJS, Web Crypto API, Node crypto AES, OpenSSL, atau library AES lain. Mode yang digunakan adalah ECB single block sesuai spesifikasi tugas.</p>
+              <p>Engine dibuat manual Mode yang digunakan adalah ECB single block.</p>
             </div>
             <div class="hero-matrix" id="heroMatrix"></div>
           </div>

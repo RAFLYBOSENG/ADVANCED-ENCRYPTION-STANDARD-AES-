@@ -245,6 +245,23 @@ select {
   outline: none;
 }
 
+input.valid {
+  border-color: #34d399;
+}
+
+input.invalid {
+  border-color: #fb7185;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.field-hint.invalid-text {
+  color: #fb7185;
+}
+
 body.light input,
 body.light select {
   background: rgba(255, 255, 255, 0.78);

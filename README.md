@@ -31,6 +31,18 @@ cmd /c npm.cmd test
 npm start
 ```
 
+Gunakan port lain jika 5173 sudah dipakai:
+
+```bash
+cmd /c "set PORT=5174 && npm.cmd start"
+```
+
+atau di PowerShell:
+
+```powershell
+$env:PORT=5174; npm start
+```
+
 Jika PowerShell memblokir `npm.ps1`, pakai:
 
 ```bash

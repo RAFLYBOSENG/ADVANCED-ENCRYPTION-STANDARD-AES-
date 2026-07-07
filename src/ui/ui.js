@@ -34,6 +34,16 @@ function setText(selector, value) {
   $(selector).textContent = value;
 }
 
+function markFieldStatus(input, isValid, message) {
+  input.classList.toggle("valid", isValid);
+  input.classList.toggle("invalid", !isValid);
+  const hint = input.closest(".field-group")?.querySelector(".field-hint");
+  if (hint) {
+    hint.textContent = message;
+    hint.classList.toggle("invalid-text", !isValid);
+  }
+}
+
 function toast(message, isError = false) {
   const box = $("#toast");
   box.textContent = message;
@@ -82,7 +92,7 @@ function runEncrypt() {
   renderInitialKeyState(keyBytes);
   renderKeyExpansion();
   renderSteps();
-  renderTesting();
+  //renderTesting();
   renderMatrix("#heroMatrix", state.encryption.steps.at(-1).state);
   setText("#validationStatus", "Encryption ready");
 }
@@ -111,6 +121,60 @@ function safeRun(action) {
     toast(error.message, true);
     setText("#validationStatus", "Input error");
   }
+}
+
+function validatePlaintextField() {
+  const mode = $("#plainMode").value;
+  const input = $("#plaintext");
+  const value = input.value;
+  if (mode === "hex") {
+    const clean = value.replace(/\s+/g, "");
+    const isHex = /^[0-9A-Fa-f]*$/.test(clean);
+    const validLength = clean.length <= 32 && clean.length % 2 === 0;
+    const message = !isHex
+      ? "Plaintext HEX hanya boleh berisi digit 0-9 dan A-F."
+      : clean.length > 32
+      ? "Plaintext HEX maksimal 32 karakter."
+      : clean.length % 2 !== 0
+      ? "Plaintext HEX harus genap jumlah digit."
+      : "Plaintext HEX valid untuk satu blok AES-128.";
+    markFieldStatus(input, isHex && validLength, message);
+    return isHex && validLength;
+  }
+  const validAscii = value.length <= 16;
+  const message = validAscii
+    ? "Plaintext ASCII valid untuk satu blok AES-128."
+    : "Plaintext ASCII maksimal 16 karakter.";
+  markFieldStatus(input, validAscii, message);
+  return validAscii;
+}
+
+function validateHexField(input, label) {
+  const value = input.value.replace(/\s+/g, "");
+  const isHex = /^[0-9A-Fa-f]*$/.test(value);
+  const validLength = value.length === 32;
+  const message = !isHex
+    ? `${label} harus berisi digit HEX 0-9 dan A-F.`
+    : !validLength
+    ? `${label} harus tepat 32 karakter HEX.`
+    : `${label} valid untuk AES-128.`;
+  markFieldStatus(input, isHex && validLength, message);
+  return isHex && validLength;
+}
+
+function validateCiphertextField() {
+  return validateHexField($("#cipherInput"), "Ciphertext");
+}
+
+function validateKeyField() {
+  return validateHexField($("#keyInput"), "Key");
+}
+
+function validateInputs() {
+  const validPlain = validatePlaintextField();
+  const validKey = validateKeyField();
+  const validCipher = validateCiphertextField();
+  return validPlain && validKey && validCipher;
 }
 
 function activeTrace() {
@@ -308,13 +372,13 @@ function renderTheory() {
   });
 }
 
-function renderTesting() {
+/*function renderTesting() {
   const expected = "";
   const actual = state.encryption ? bytesToHex(state.encryption.cipherBytes) : "";
   const result = $("#testResult");
   result.className = `test-result ${actual === expected ? "pass" : "fail"}`;
   result.textContent = actual === expected ? `PASS: ${actual}` : `FAIL: hasil ${actual || "-"} tidak sama dengan ${expected}`;
-}
+}*/
 
 function copyFrom(id) {
   const value = $(`#${id}`).textContent;
@@ -344,6 +408,13 @@ function bindEvents() {
   $("#runEncrypt").addEventListener("click", () => safeRun(runEncrypt));
   $("#runDecrypt").addEventListener("click", () => safeRun(runDecrypt));
   $("#resetInputs").addEventListener("click", resetInputs);
+  $("#plaintext").addEventListener("input", validatePlaintextField);
+  $("#cipherInput").addEventListener("input", validateCiphertextField);
+  $("#keyInput").addEventListener("input", validateKeyField);
+  $("#plainMode").addEventListener("change", () => {
+    applyPlaintextConstraints();
+    validatePlaintextField();
+  });
   $("#prevStep").addEventListener("click", () => moveStep(-1));
   $("#nextStep").addEventListener("click", () => moveStep(1));
   $("#playSteps").addEventListener("click", togglePlay);
@@ -362,10 +433,10 @@ function applyPlaintextConstraints() {
   if (!input) return;
   if (mode === "hex") {
     input.maxLength = 32;
-    input.placeholder = "Max 32 HEX"
+    input.placeholder = "Max 32 HEX";
   } else {
     input.maxLength = 16;
-    input.placeholder = "Max 16 ASCII"
+    input.placeholder = "Max 16 ASCII";
   }
   if (input.value.length > input.maxLength) {
     input.value = input.value.slice(0, input.maxLength);
