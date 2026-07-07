@@ -4,12 +4,6 @@ Aplikasi web statis untuk simulasi AES-128 sesuai FIPS-197. Engine AES dibuat ma
 
 ## Cara Menjalankan
 
-### Deploy ke Vercel
-
-1. Push project ke GitHub.
-2. Buka Vercel, pilih repository ini, lalu deploy.
-3. Vercel akan otomatis menggunakan file [vercel.json](vercel.json).
-
 ### Lokal
 
 1. Pastikan Node.js tersedia.
